@@ -11,7 +11,6 @@ variables:
 
 stages:
   - build
-  - unit
   - test
   - cfuzz
   - review
@@ -29,7 +28,6 @@ stages:
 
 include:  
   - template: Jobs/Build.gitlab-ci.yml
-  - template: Jobs/Test.gitlab-ci.yml
   - template: Jobs/Code-Quality.gitlab-ci.yml
   - template: Jobs/Deploy.gitlab-ci.yml
   - template: Jobs/DAST-Default-Branch-Deploy.gitlab-ci.yml
@@ -53,7 +51,7 @@ build:
 
 unit:
   image: python:3
-  stage: unit
+  stage: test
   script:
     - apt update -y
     - apt install libmariadb3 libmariadb-dev sqlite3 libsqlite3-dev -y
