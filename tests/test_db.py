@@ -1,6 +1,7 @@
 import os
 import time
 import unittest
+import xmlrunner
 import notes
 from notes import db
 
@@ -25,3 +26,9 @@ class TestDB(unittest.TestCase):
                 nameExists = True
 
         self.assertTrue(nameExists, "Test failed, couldn't find database table 'test'")
+
+if __name__ == '__main__':
+    with open('junit.xml', 'wb') as output:
+        unittest.main(
+            testRunner=xmlrunner.XMLTestRunner(output=output),
+            failfast=False, buffer=False, catchbreak=False)
