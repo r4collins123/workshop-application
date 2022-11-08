@@ -1,24 +1,16 @@
-image: docker:latest
-
-services:
-  - docker:dind
+image: alpine:latest # slimmer than docker:latest
 
 variables:
-  POSTGRES_ENABLED: "false"
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""  # https://gitlab.com/gitlab-org/gitlab-runner/issues/4501
   ROLLOUT_RESOURCE_TYPE: deployment
 
 stages:
   - build
   - test
-  - cfuzz
   - review
   - staging
   - canary
   - production
   - dast
-  - fuzz
   - incremental rollout 10%
   - incremental rollout 25%
   - incremental rollout 50%
@@ -39,16 +31,6 @@ include:
   - template: Security/Secret-Detection.gitlab-ci.yml
 
 
-build:
-  stage: build
-  variables:
-    IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
-  script:
-    - docker info
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $IMAGE .
-    - docker push $IMAGE
-
 unit:
   image: python:3
   stage: test
@@ -56,9 +38,16 @@ unit:
     - apt update -y
     - apt install libmariadb3 libmariadb-dev sqlite3 libsqlite3-dev -y
     - pip3 install -r requirements.txt
-    - python -m unittest tests/test_db.py
+    - pip3 install unittest-xml-reporting
+    - python -m xmlrunner tests/test_db.py
+    - mv TEST* unit.xml
+  artifacts:
+    when: always
+    paths:
+      - unit.xml
+    reports:
+      junit: unit.xml
 
-# ensuring that our image is updated before running dependency scanning
 gemnasium-python-dependency_scanning:
   before_script:
     - apt update
