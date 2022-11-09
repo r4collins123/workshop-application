@@ -32,11 +32,12 @@ include:
 
 
 unit:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - apt update -y
     - apt install libmariadb3 libmariadb-dev sqlite3 libsqlite3-dev -y
+    - pip install --upgrade pip
     - pip3 install -r requirements.txt
     - pip3 install unittest-xml-reporting
     - python -m xmlrunner tests/test_db.py
