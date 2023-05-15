@@ -1,15 +1,10 @@
-FROM python:3.6
+FROM maven:3-jdk-8-alpine
 
-RUN apt update -y
-RUN apt install libmariadb3 libmariadb-dev sqlite3 libsqlite3-dev -y
+WORKDIR /usr/src/app
 
-COPY ./requirements.txt /app/requirements.txt
+COPY . /usr/src/app
+RUN mvn package
 
-WORKDIR /app
-RUN pip install --upgrade pip
-RUN pip3 install -r requirements.txt
-COPY . /app
-
-EXPOSE 5000
-ENTRYPOINT [ "python" ]
-CMD [ "run.py" ]
+ENV PORT 5000
+EXPOSE $PORT
+CMD [ "sh", "-c", "mvn -Dserver.port=${PORT} spring-boot:run" ]
